@@ -6,36 +6,71 @@ fun main() {
         println("Your choice: ")
         var choice = readLine()!!.toInt()
         when(choice) {
-            1 -> firstFunction()
-            2 -> secondFunction()
-            3 -> thirdFunction()
+            1 -> addMatrices()
+            2 -> scalarMultiplication()
+            3 -> matrixMultiplication()
+            4 -> matrixTranspose()
             else -> break
         }
     }
 }
 
-fun thirdFunction() {
+fun matrixTranspose() {
+    println("1. Main diagonal\n2. Side diagonal\n3. Vertical line\n4. Horizontal line")
+    println("Your choice: ")
+    var choice = readLine()!!.toInt()
+    println("Enter matrix size: ")
+    var measures = readLine()!!.split(" ").map { it.toInt() }
+    var (matrix, isInt) = buildMatrix(measures.first(), measures.last())
+
+    var transposed = when(choice) {
+        1 -> mainDiagonalTranspose(matrix)
+        2 -> sideDiagonalTranspose(matrix)
+        3 -> verticalLineTranspose(matrix)
+        4 -> horizontaLineTranspose(matrix)
+        else -> return
+    }
+}
+
+fun mainDiagonalTranspose(matrix: List<List<Double>>): List<List<Double>> {
+
+}
+
+fun sideDiagonalTranspose(matrix: List<List<Double>>): List<List<Double>> {
+
+}
+
+fun verticalLineTranspose(matrix: List<List<Double>>): List<List<Double>> {
+    var cpyMatrix = matrix.map { it.reversed() }
+    return cpyMatrix
+}
+
+fun horizontaLineTranspose(matrix: List<List<Double>>): List<List<Double>> {
+
+}
+
+fun matrixMultiplication() {
     println("Enter size of first matrix: ")
     var firstDim = readLine()!!.split(" ").map { it.toInt() }
-    var firstMatrix = buildMatrix(firstDim[0], firstDim[1])
+    var (firstMatrix, isInt) = buildMatrix(firstDim[0], firstDim[1])
 
     println("Enter size of second matrix: ")
     var secondDim = readLine()!!.split(" ").map { it.toInt() }
-    var secondMatrix = buildMatrix(secondDim[0], secondDim[1])
+    var (secondMatrix, isIntTwo) = buildMatrix(secondDim[0], secondDim[1])
 
     var result = multiplyMatrices(firstMatrix, secondMatrix)
-    printMatrix(result)
+    printMatrix(result, isIntTwo)
 }
 
-fun extractColumnAsList(matrix: List<List<Int>>, column: Int): List<Int> {
-    var flatened = mutableListOf<Int>()
+fun extractColumnAsList(matrix: List<List<Double>>, column: Int): List<Double> {
+    var flatened = mutableListOf<Double>()
     for (i in 0 until matrix.size) {
         flatened.add(matrix[i][column])
     }
     return flatened
 }
 
-fun multiplyMatrices(a: List<List<Int>>, b: List<List<Int>>): List<List<Int>> {
+fun multiplyMatrices(a: List<List<Double>>, b: List<List<Double>>): List<List<Double>> {
     var a_i = a.size
     var a_j = a.first().size
     var b_i = b.size
@@ -43,7 +78,7 @@ fun multiplyMatrices(a: List<List<Int>>, b: List<List<Int>>): List<List<Int>> {
 
     if (a_j != b_i) throw Exception("Incorrect Matrix Size")
 
-    var resultMatrix = MutableList(a_i) { MutableList(b_j) { 0 } }
+    var resultMatrix = MutableList(a_i) { MutableList(b_j) { 0.0 } }
 
     a.forEachIndexed { row, intA ->
         b[row].forEachIndexed { column, value ->
@@ -54,8 +89,8 @@ fun multiplyMatrices(a: List<List<Int>>, b: List<List<Int>>): List<List<Int>> {
     return resultMatrix
 }
 
-fun calculateNorm(a: List<Int>,b: List<Int>): Int {
-    var norm = 0
+fun calculateNorm(a: List<Double>,b: List<Double>): Double {
+    var norm = 0.0
     if (a.size != b.size) throw Exception("Incorrect Matrix Size")
 
     for (i in 0 until a.size) {
@@ -64,18 +99,21 @@ fun calculateNorm(a: List<Int>,b: List<Int>): Int {
     return norm
 }
 
-fun secondFunction() {
+fun scalarMultiplication() {
+    println("Enter size of matrix: ")
     var aMeasures = readLine()!!.split(" ").map { it.toInt() }
-    var A = buildMatrix(aMeasures.first(), aMeasures.last())
-    var scalar = readLine()!!.toInt()
+    println("Enter matrix: ")
+    var (A, isInt) = buildMatrix(aMeasures.first(), aMeasures.last())
+    println("Enter constant: ")
+    var scalar = readLine()!!.toDouble()
     var result = scalarMultiplication(scalar, A)
-    printMatrix(result)
+    printMatrix(result, isInt)
 }
 
-fun scalarMultiplication(scalar: Int, a: List<List<Int>>): List<List<Int>> {
+fun scalarMultiplication(scalar: Double, a: List<List<Double>>): List<List<Double>> {
     val rows = a.size
     val columns = a.first().size
-    var resultMatrix = MutableList(rows) { MutableList(columns) { 0 } }
+    var resultMatrix = MutableList(rows) { MutableList(columns) { 0.0 } }
 
     for(m in 0 until rows) {
         for (n in 0 until columns) {
@@ -85,33 +123,44 @@ fun scalarMultiplication(scalar: Int, a: List<List<Int>>): List<List<Int>> {
     return resultMatrix
 }
 
-fun firstFunction() {
+fun addMatrices() {
+    println("Enter size of first matrix: ")
     var aMeasures = readLine()!!.split(" ").map { it.toInt() }
-    var A = buildMatrix(aMeasures.first(), aMeasures.last())
-
+    println("Enter first matrix: ")
+    var (A, isInt) = buildMatrix(aMeasures.first(), aMeasures.last())
+    println("Enter size of second matrix: ")
     var bMeasures = readLine()!!.split(" ").map { it.toInt() }
-    var B = buildMatrix(bMeasures.first(), bMeasures.last())
+    println("Enter size of second matrix: ")
+    var (B, isIntTwo) = buildMatrix(bMeasures.first(), bMeasures.last())
 
     if (aMeasures.first() != bMeasures.first() || aMeasures.last() != bMeasures.last()) println("ERROR")
-    else printMatrix(sumMatrix(A, B))
+    else printMatrix(sumMatrix(A, B), isInt && isIntTwo)
 }
 
-fun buildMatrix(rows: Int, column: Int): List<List<Int>> {
-    val matrix = List(rows) { readLine()!!.split(" ").map { it.toInt() } }
-    return matrix
+fun buildMatrix(rows: Int, column: Int): Pair<List<List<Double>>, Boolean> {
+    var isInt = false
+    val matrix = List(rows) { readLine()!!.split(" ").map { isInt = !it.contains('.')
+        it.toDouble() } }
+    return matrix to isInt
 }
 
-fun printMatrix(matrix: List<List<Int>>) {
-    matrix.forEach {
+fun printMatrix(matrix: List<List<Double>>, isInt: Boolean) {
+    var cpyMatrix: MutableList<List<Number>>
+
+    if(isInt) cpyMatrix = matrix.map { list -> list.map { number -> number.toInt() } }.toMutableList()
+    else cpyMatrix = matrix.toMutableList()
+
+    println("The result is: ")
+    cpyMatrix.forEach {
         println(it.joinToString(" "))
     }
     println("")
 }
 
-fun sumMatrix(a: List<List<Int>>, b: List<List<Int>>): List<List<Int>> {
+fun sumMatrix(a: List<List<Double>>, b: List<List<Double>>): List<List<Double>> {
     val rows = a.size
     val columns = a.first().size
-    var resultMatrix = MutableList(rows) { MutableList(columns) { 0 } }
+    var resultMatrix = MutableList(rows) { MutableList(columns) { 0.0 } }
 
     for(m in 0 until rows) {
         for (n in 0 until columns) {
