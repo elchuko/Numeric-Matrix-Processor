@@ -2,10 +2,9 @@ package processor
 
 fun main() {
     while(true) {
-        println("1. Add Matrices\n2. Multiply matrix by a constant\n3. Multiply matrices\n0. Exit")
+        println("1. Add Matrices\n2. Multiply matrix by a constant\n3. Multiply matrices\n4. Transpose matrix\n0. Exit")
         println("Your choice: ")
-        var choice = readLine()!!.toInt()
-        when(choice) {
+        when(readLine()!!.toInt()) {
             1 -> addMatrices()
             2 -> scalarMultiplication()
             3 -> matrixMultiplication()
@@ -16,54 +15,64 @@ fun main() {
 }
 
 fun matrixTranspose() {
-    println("1. Main diagonal\n2. Side diagonal\n3. Vertical line\n4. Horizontal line")
+    println("\n1. Main diagonal\n2. Side diagonal\n3. Vertical line\n4. Horizontal line")
     println("Your choice: ")
-    var choice = readLine()!!.toInt()
+    val choice = readLine()!!.toInt()
     println("Enter matrix size: ")
-    var measures = readLine()!!.split(" ").map { it.toInt() }
-    var (matrix, isInt) = buildMatrix(measures.first(), measures.last())
+    val measures = readLine()!!.split(" ").map { it.toInt() }
+    println("Enter matrix: ")
+    val (matrix, isInt) = buildMatrix(measures.first(), measures.last())
 
-    var transposed = when(choice) {
+    val transposed = when(choice) {
         1 -> mainDiagonalTranspose(matrix)
         2 -> sideDiagonalTranspose(matrix)
         3 -> verticalLineTranspose(matrix)
         4 -> horizontaLineTranspose(matrix)
         else -> return
     }
+
+    printMatrix(transposed, isInt)
 }
 
 fun mainDiagonalTranspose(matrix: List<List<Double>>): List<List<Double>> {
-
+    var i = -1 //Initialize at -1 because it is increased before calling the function
+    return List(matrix.size) {
+        i++
+        extractColumnAsList(matrix, i)
+    }
 }
 
 fun sideDiagonalTranspose(matrix: List<List<Double>>): List<List<Double>> {
-
+    var i = matrix.size
+    return List(matrix.size) {
+        i--
+        extractColumnAsList(matrix, i).reversed()
+    }
 }
 
 fun verticalLineTranspose(matrix: List<List<Double>>): List<List<Double>> {
-    var cpyMatrix = matrix.map { it.reversed() }
-    return cpyMatrix
+    return matrix.map { it.reversed() }
 }
 
 fun horizontaLineTranspose(matrix: List<List<Double>>): List<List<Double>> {
-
+    return matrix.reversed()
 }
 
 fun matrixMultiplication() {
     println("Enter size of first matrix: ")
-    var firstDim = readLine()!!.split(" ").map { it.toInt() }
-    var (firstMatrix, isInt) = buildMatrix(firstDim[0], firstDim[1])
+    val firstDim = readLine()!!.split(" ").map { it.toInt() }
+    val (firstMatrix, isInt) = buildMatrix(firstDim[0], firstDim[1])
 
     println("Enter size of second matrix: ")
-    var secondDim = readLine()!!.split(" ").map { it.toInt() }
-    var (secondMatrix, isIntTwo) = buildMatrix(secondDim[0], secondDim[1])
+    val secondDim = readLine()!!.split(" ").map { it.toInt() }
+    val (secondMatrix, isIntTwo) = buildMatrix(secondDim[0], secondDim[1])
 
-    var result = multiplyMatrices(firstMatrix, secondMatrix)
-    printMatrix(result, isIntTwo)
+    val result = multiplyMatrices(firstMatrix, secondMatrix)
+    printMatrix(result, isInt && isIntTwo)
 }
 
 fun extractColumnAsList(matrix: List<List<Double>>, column: Int): List<Double> {
-    var flatened = mutableListOf<Double>()
+    val flatened = mutableListOf<Double>()
     for (i in 0 until matrix.size) {
         flatened.add(matrix[i][column])
     }
@@ -71,18 +80,18 @@ fun extractColumnAsList(matrix: List<List<Double>>, column: Int): List<Double> {
 }
 
 fun multiplyMatrices(a: List<List<Double>>, b: List<List<Double>>): List<List<Double>> {
-    var a_i = a.size
-    var a_j = a.first().size
-    var b_i = b.size
-    var b_j = b.first().size
+    val aI = a.size
+    val aJ = a.first().size
+    val bI = b.size
+    val bJ = b.first().size
 
-    if (a_j != b_i) throw Exception("Incorrect Matrix Size")
+    if (aJ != bI) throw Exception("Incorrect Matrix Size")
 
-    var resultMatrix = MutableList(a_i) { MutableList(b_j) { 0.0 } }
+    val resultMatrix = MutableList(aI) { MutableList(bJ) { 0.0 } }
 
     a.forEachIndexed { row, intA ->
         b[row].forEachIndexed { column, value ->
-            var flatB = extractColumnAsList(b, column)
+            val flatB = extractColumnAsList(b, column)
             resultMatrix[row][column] = calculateNorm(intA, flatB)
         }
     }
@@ -101,19 +110,19 @@ fun calculateNorm(a: List<Double>,b: List<Double>): Double {
 
 fun scalarMultiplication() {
     println("Enter size of matrix: ")
-    var aMeasures = readLine()!!.split(" ").map { it.toInt() }
+    val aMeasures = readLine()!!.split(" ").map { it.toInt() }
     println("Enter matrix: ")
-    var (A, isInt) = buildMatrix(aMeasures.first(), aMeasures.last())
+    val (A, isInt) = buildMatrix(aMeasures.first(), aMeasures.last())
     println("Enter constant: ")
-    var scalar = readLine()!!.toDouble()
-    var result = scalarMultiplication(scalar, A)
+    val scalar = readLine()!!.toDouble()
+    val result = scalarMultiplication(scalar, A)
     printMatrix(result, isInt)
 }
 
 fun scalarMultiplication(scalar: Double, a: List<List<Double>>): List<List<Double>> {
     val rows = a.size
     val columns = a.first().size
-    var resultMatrix = MutableList(rows) { MutableList(columns) { 0.0 } }
+    val resultMatrix = MutableList(rows) { MutableList(columns) { 0.0 } }
 
     for(m in 0 until rows) {
         for (n in 0 until columns) {
@@ -125,13 +134,13 @@ fun scalarMultiplication(scalar: Double, a: List<List<Double>>): List<List<Doubl
 
 fun addMatrices() {
     println("Enter size of first matrix: ")
-    var aMeasures = readLine()!!.split(" ").map { it.toInt() }
+    val aMeasures = readLine()!!.split(" ").map { it.toInt() }
     println("Enter first matrix: ")
-    var (A, isInt) = buildMatrix(aMeasures.first(), aMeasures.last())
+    val (A, isInt) = buildMatrix(aMeasures.first(), aMeasures.last())
     println("Enter size of second matrix: ")
-    var bMeasures = readLine()!!.split(" ").map { it.toInt() }
+    val bMeasures = readLine()!!.split(" ").map { it.toInt() }
     println("Enter size of second matrix: ")
-    var (B, isIntTwo) = buildMatrix(bMeasures.first(), bMeasures.last())
+    val (B, isIntTwo) = buildMatrix(bMeasures.first(), bMeasures.last())
 
     if (aMeasures.first() != bMeasures.first() || aMeasures.last() != bMeasures.last()) println("ERROR")
     else printMatrix(sumMatrix(A, B), isInt && isIntTwo)
@@ -145,7 +154,7 @@ fun buildMatrix(rows: Int, column: Int): Pair<List<List<Double>>, Boolean> {
 }
 
 fun printMatrix(matrix: List<List<Double>>, isInt: Boolean) {
-    var cpyMatrix: MutableList<List<Number>>
+    val cpyMatrix: MutableList<List<Number>>
 
     if(isInt) cpyMatrix = matrix.map { list -> list.map { number -> number.toInt() } }.toMutableList()
     else cpyMatrix = matrix.toMutableList()
@@ -160,7 +169,7 @@ fun printMatrix(matrix: List<List<Double>>, isInt: Boolean) {
 fun sumMatrix(a: List<List<Double>>, b: List<List<Double>>): List<List<Double>> {
     val rows = a.size
     val columns = a.first().size
-    var resultMatrix = MutableList(rows) { MutableList(columns) { 0.0 } }
+    val resultMatrix = MutableList(rows) { MutableList(columns) { 0.0 } }
 
     for(m in 0 until rows) {
         for (n in 0 until columns) {
