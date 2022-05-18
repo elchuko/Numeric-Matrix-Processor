@@ -1,10 +1,11 @@
 package processor
 
 import kotlin.math.pow
+import kotlin.math.round
 
 fun main() {
     while(true) {
-        println("1. Add Matrices\n2. Multiply matrix by a constant\n3. Multiply matrices\n4. Transpose matrix\n5. Calculate a determinant\n0. Exit")
+        println("1. Add Matrices\n2. Multiply matrix by a constant\n3. Multiply matrices\n4. Transpose matrix\n5. Calculate a determinant\n6. Inverse matrix\n0. Exit")
         println("Your choice: ")
         when(readLine()!!.toInt()) {
             1 -> addMatrices()
@@ -19,16 +20,33 @@ fun main() {
 }
 
 fun calculateInverse() {
+    println("\nEnter matrix size")
+    var size = readLine()!!.split(' ').map { it.toInt() }
+    println("Enter matrix:")
+    var (matrix, _) = buildMatrix(size[0])
 
+    var determinant = calculateDeterminant(matrix)
+    if (determinant == 0.0) {
+        println("This matrix doesn't have an inverse.")
+        return
+    }
+
+    var cofactorMatrix = calculateCofactorMatrix(matrix)
+    var transposedCofactor = mainDiagonalTranspose(cofactorMatrix)
+    var inverseDeterminant = 1.0 / determinant
+
+    var inverseMatrix = scalarMultiplication(inverseDeterminant, transposedCofactor)
+    printMatrix(inverseMatrix, false, round = true)
 }
 
 fun calculateCofactorMatrix(matrix: List<List<Double>>): List<List<Double>> {
     var cofactorMatrix = MutableList(matrix.size) { MutableList(matrix.size) { 0.0 } }
     for (i in 0 until cofactorMatrix.size) {
         for (j in 0 until cofactorMatrix.size) {
-            cofactorMatrix[i][j] = calculateCofactor()
+            cofactorMatrix[i][j] = (-1.0).pow(i + j + 2) * calculateCofactor(createSubmatrix(matrix, i, j))
         }
     }
+    return cofactorMatrix
 }
 
 fun calculateCofactor(matrix: List<List<Double>>): Double {
@@ -42,13 +60,12 @@ fun calculateCofactor(matrix: List<List<Double>>): Double {
 
     matrix.forEachIndexed { i, list ->
         list.forEachIndexed { j, _ ->
-            var subMatrix = createSubmatrix(matrix, i, j)
+            var subMatrix = createSubmatrix(matrix, 0, j)
             determinant += matrix[i][j] * calculateCofactor(subMatrix) * sign
+            //determinant += calculateCofactor(subMatrix) * sign
             sign *= -1.0
         }
     }
-
-
     return determinant
 }
 
@@ -250,10 +267,11 @@ fun buildMatrix(rows: Int): Pair<List<List<Double>>, Boolean> {
     return matrix to isInt
 }
 
-fun printMatrix(matrix: List<List<Double>>, isInt: Boolean) {
+fun printMatrix(matrix: List<List<Double>>, isInt: Boolean, round: Boolean = false) {
     val cpyMatrix: MutableList<List<Number>>
 
     if(isInt) cpyMatrix = matrix.map { list -> list.map { number -> number.toInt() } }.toMutableList()
+    else if (round) cpyMatrix = matrix.map { it.map { it.truncate(2) }  }.toMutableList()
     else cpyMatrix = matrix.toMutableList()
 
     println("The result is: ")
@@ -274,4 +292,18 @@ fun sumMatrix(a: List<List<Double>>, b: List<List<Double>>): List<List<Double>> 
         }
     }
     return resultMatrix
+}
+
+
+fun Double.truncate(decimals: Int): Double {
+    var doubleStr = this.toString()
+    var pointIndex = doubleStr.indexOf('.')
+    if (doubleStr.slice(pointIndex..doubleStr.lastIndex).length <= 2) return doubleStr.toDouble()
+    return doubleStr.slice(0.. pointIndex + decimals).toDouble()
+}
+
+fun Double.round(decimals: Int): Double {
+    var multiplier = 1.0
+    repeat(decimals) { multiplier *= 10 }
+    return round(this * multiplier) / multiplier
 }
